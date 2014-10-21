@@ -1,0 +1,6 @@
+D:\app\ID3Tags\ID3Tags\ID3Tags\bin\Debug\ID3Tags.exe.config
+D:\app\ID3Tags\ID3Tags\ID3Tags\bin\Debug\ID3Tags.exe
+D:\app\ID3Tags\ID3Tags\ID3Tags\bin\Debug\ID3Tags.pdb
+D:\app\ID3Tags\ID3Tags\ID3Tags\obj\Debug\ID3Tags.csprojResolveAssemblyReference.cache
+D:\app\ID3Tags\ID3Tags\ID3Tags\obj\Debug\ID3Tags.exe
+D:\app\ID3Tags\ID3Tags\ID3Tags\obj\Debug\ID3Tags.pdb
