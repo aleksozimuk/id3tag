@@ -59,7 +59,7 @@ namespace ID3Tags
         /// </summary>
         /// <param name="data">массив байт тела фрейма</param>
         /// <returns>строка со значащей информацией</returns>
-        private string ParseCommentsFrames(byte[] data)
+        private string ParseCommentFrames(byte[] data)
         {
             // проверяем кодировку фрейма
             string encoding = BitConverter.ToString(data.Where((element, index) => index == 0).ToArray());
@@ -85,7 +85,7 @@ namespace ID3Tags
         /// </summary>
         /// <param name="arr">массив 4 последних байт заголовка тега</param>
         /// <returns>целочисленный размер тега без учета заголовка</returns>
-        private int GetSizeTag(byte[] arr)
+        private int GetTagSizeInt(byte[] arr)
         {
             int result = 0;
             int countBits = 0;
@@ -103,15 +103,51 @@ namespace ID3Tags
             return result;
         }
         /// <summary>
+        /// переводит размер тега в массив 4 байт,
+        /// старшие биты каждого байта не значимые
+        /// </summary>
+        /// <param name="size">размер тега</param>
+        /// <returns>размер тега, представленный массивом 4 байт</returns>
+        private byte[] GetTagSizeByteArray(int size)
+        {
+            byte[] result = new byte[4];
+            int countBits = 0;
+
+            for (int i = 3; i >= 0; i--)
+            {
+                int temp = 0;
+                for (int ii = 0; ii < 7; ii++)
+                {
+                    if ((size & (1 << countBits)) != 0)
+                        temp |= (1 << ii);
+                    countBits++;
+                }
+                result[i] = (byte)temp;
+            }
+
+            return result;
+        }
+        /// <summary>
         /// определяет размер фрейма, учитывая порядок байт архитектуры ком-ра
         /// </summary>
         /// <param name="arr">массив 4 байт размера фрейма</param>
         /// <returns>размер фрейма</returns>
-        private int GetSizeFrame(byte[] arr)
+        private int GetFrameSizeInt(byte[] arr)
         {
             if (BitConverter.IsLittleEndian)
                 arr = arr.Reverse().ToArray();
             return BitConverter.ToInt32(arr, 0);
+        }
+        /// <summary>
+        /// получает размер фрейма в виде массива байт
+        /// </summary>
+        /// <param name="size">размер фрейма</param>
+        /// <returns>размер фрейма(4 байт)</returns>
+        private byte[] GetFrameSizeByteArray(int size)
+        {
+            if (BitConverter.IsLittleEndian)
+                return BitConverter.GetBytes(size).Reverse().ToArray();
+            return BitConverter.GetBytes(size);
         }
         /// <summary>
         /// 
@@ -121,7 +157,12 @@ namespace ID3Tags
         /// <returns></returns>
         private byte[] GetTextFrame(byte[] frameID, byte[] frameData)
         {
-            return frameID.Concat(new byte[] { 1 }).Concat(frameData).ToArray();
+            return frameID
+                            .Concat(GetFrameSizeByteArray(frameData.Length + 1))
+                            .Concat(new byte[] { 0, 0 })
+                            .Concat(new byte[] { 1 })
+                            .Concat(frameData)
+                            .ToArray();
         }
         /// <summary>
         /// 
@@ -131,8 +172,9 @@ namespace ID3Tags
         /// <returns></returns>
         private byte[] GetCommentFrame(byte[] frameID, byte[] frameData)
         {
-            //byte[] language = Encoding.Default.GetBytes("eng");
             return frameID
+                            .Concat(GetFrameSizeByteArray(frameData.Length + 10))
+                            .Concat(new byte[] { 0, 0 })
                             .Concat(new byte[] { 1 })
                             .Concat(Encoding.Default.GetBytes("eng"))
                             .Concat(new byte[] { 255, 254 })
@@ -141,7 +183,21 @@ namespace ID3Tags
                             .Concat(frameData)
                             .ToArray();
         }
-
+        /// <summary>
+        /// создает массив байт всего тега(заголовок + тело)
+        /// для дальнейшего сохранения
+        /// </summary>
+        /// <param name="tagBody">тело тега без заголовка</param>
+        /// <returns>тег в виде массива байт</returns>
+        private byte[] GetTagID3ByteArray(byte[] tagBody)
+        {
+            return Encoding.Default.GetBytes("ID3")
+                                                    .Concat(Encoding.Default.GetBytes("0300"))
+                                                    .Concat(new byte[] { 0 })
+                                                    .Concat(GetTagSizeByteArray(tagBody.Length))
+                                                    .Concat(tagBody)
+                                                    .ToArray();
+        }
         /// <summary>
         /// получает имеющиеся метаданные аудиофайла
         /// </summary>
@@ -163,12 +219,12 @@ namespace ID3Tags
                 {
                     binReader.ReadByte();
                     // определяем размер тега
-                    tagSize = this.GetSizeTag(binReader.ReadBytes(SIZETAGLENGTH));
+                    tagSize = this.GetTagSizeInt(binReader.ReadBytes(SIZETAGLENGTH));
                     // читаем необходимые фреймы и сохраняем значащую информацию
                     while (binReader.BaseStream.Position <= tagSize)
                     {
                         frameName = new string(binReader.ReadChars(NAMEFRAMELENGTH));
-                        frameSize = GetSizeFrame(binReader.ReadBytes(SIZEFRAMELENGTH));
+                        frameSize = GetFrameSizeInt(binReader.ReadBytes(SIZEFRAMELENGTH));
                         binReader.ReadBytes(FLAGFRAMELENGTH);
                         frameData = binReader.ReadBytes(frameSize);
                         if ((frameSize == 0) && (frameName == "\0\0\0\0")) break;
@@ -188,7 +244,7 @@ namespace ID3Tags
                                 this._id3Tag.Year = this.ParseTextFrames(frameData);
                                 break;
                             case "COMM":
-                                this._id3Tag.Comment = this.ParseCommentsFrames(frameData);
+                                this._id3Tag.Comment = this.ParseCommentFrames(frameData);
                                 break;
                             case "TCON":
                                 this._id3Tag.Genre = this.ParseTextFrames(frameData);
@@ -207,10 +263,16 @@ namespace ID3Tags
             }
 
         }
-
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mp3FilePath"></param>
         public void SetTag(string mp3FilePath)
         {
+            int tagSize = 0;
+            byte[] tag;
+            byte[] tagBody;
+
             if (!File.Exists(mp3FilePath))
                 throw new Exception("файл не найден");
 
@@ -219,16 +281,27 @@ namespace ID3Tags
 
                 if ((new string(binReader.ReadChars(HEADERTAGLENGTH)) == "ID3") && (BitConverter.ToString(binReader.ReadBytes(2)) == "03-00"))
                 {
-                    byte bt = binReader.ReadByte();
-                    int tagSize = this.GetSizeTag(binReader.ReadBytes(SIZETAGLENGTH));
-
-
-
-
-
+                    binReader.ReadByte();
+                    tagSize = this.GetTagSizeInt(binReader.ReadBytes(SIZETAGLENGTH));
+                    binReader.BaseStream.Position = tagSize;
                 }
 
+                tagBody = GetTextFrame(Encoding.Default.GetBytes("TIT2"), Encoding.Unicode.GetBytes(this.ID3Tag.Title))
+                            .Concat(GetTextFrame(Encoding.Default.GetBytes("TPE1"), Encoding.Unicode.GetBytes(this.ID3Tag.Artist)))
+                            .Concat(GetTextFrame(Encoding.Default.GetBytes("TALB"), Encoding.Unicode.GetBytes(this.ID3Tag.Album)))
+                            .Concat(GetTextFrame(Encoding.Default.GetBytes("TYER"), Encoding.Unicode.GetBytes(this.ID3Tag.Year)))
+                            .Concat(GetCommentFrame(Encoding.Default.GetBytes("COMM"), Encoding.Unicode.GetBytes(this.ID3Tag.Comment)))
+                            .Concat(GetTextFrame(Encoding.Default.GetBytes("TCON"), Encoding.Unicode.GetBytes(this.ID3Tag.Genre)))
+                            .Concat(GetTextFrame(Encoding.Default.GetBytes("TRCK"), Encoding.Unicode.GetBytes(this.ID3Tag.Track)))
+                            .ToArray();
 
+                tag = GetTagID3ByteArray(tagBody);
+
+                using (BinaryWriter binWriter = new BinaryWriter(File.Create(@"tmp.mp3")))
+                {
+                    binWriter.Write(tag);
+                    binWriter.Write()
+                }
 
             }
 

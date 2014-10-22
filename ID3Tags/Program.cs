@@ -52,7 +52,7 @@ namespace ID3Tags
                 ////3-4 - 03 00                                   версия/субверсия
                 ////
                 //Console.WriteLine(BitConverter.ToString(tag));//3-4
-                
+
                 /*
                 ID3v2 mp3 = new ID3v2();
                 mp3.GetTag(@"D:\Sia - I go to sleep.mp3");
@@ -65,10 +65,30 @@ namespace ID3Tags
                 Console.WriteLine(mp3.ID3Tag.Comment);
                 Console.WriteLine(mp3.ID3Tag.Genre);
                 Console.WriteLine(mp3.ID3Tag.Track);
-                
                 */
 
 
+
+                int size = 530;
+
+                byte[] result = new byte[4];
+                int countBits = 0;
+                ///int temp = 0;
+
+                for (int i = 3; i >= 0; i--)
+                {
+                    int temp = 0;
+                    for (int ii = 0; ii < 7; ii++)
+                    {
+                        if ((size & (1 << countBits)) != 0)
+                            temp |= (1 << ii);
+                        countBits++;
+                    }
+                    result[i] = (byte)temp;
+                }
+
+                {
+                }
                 //byte[] arr = new byte[] { 1, 2, 3 };
                 //arr = arr.Reverse().ToArray();
 
@@ -123,10 +143,12 @@ namespace ID3Tags
 
                 Console.WriteLine(Encoding.Unicode.GetString(res));
                 */
+                /*
+                string str = @"D:\1.txt";
 
-                using (FileStream fs = new FileStream(@"D:\1.txt", FileMode.Open, FileAccess.Read))
+                using (FileStream fs = new FileStream(str, FileMode.Open, FileAccess.Read))
                 {
-                    using (FileStream fs2 = new FileStream(@"D:\2.txt", FileMode.Open, FileAccess.Write))
+                    using (FileStream fs2 = new FileStream(@"D:\2.txt", FileMode.Create, FileAccess.Write))
                     {
                         while (fs.Position != fs.Length)
                         {
@@ -138,6 +160,10 @@ namespace ID3Tags
                         
                     }
                 }
+
+                File.Delete(str);
+                File.Move(@"D:\2.txt", str);
+                */
 
 
 
