@@ -150,11 +150,11 @@ namespace ID3Tags
             return BitConverter.GetBytes(size);
         }
         /// <summary>
-        /// 
+        /// создает массив байт текстовых фреймов(заголовок + тело)
         /// </summary>
-        /// <param name="frameID"></param>
-        /// <param name="frameData"></param>
-        /// <returns></returns>
+        /// <param name="frameID">ID текстового фрейма</param>
+        /// <param name="frameData">значащая информация фрейма</param>
+        /// <returns>массив байт</returns>
         private byte[] GetTextFrame(byte[] frameID, byte[] frameData)
         {
             return frameID
@@ -165,11 +165,11 @@ namespace ID3Tags
                             .ToArray();
         }
         /// <summary>
-        /// 
+        /// создает массив байт фрейма-комментария(заголовок + тело)
         /// </summary>
-        /// <param name="frameID"></param>
-        /// <param name="frameData"></param>
-        /// <returns></returns>
+        /// <param name="frameID">ID фрейма-комментария</param>
+        /// <param name="frameData">значащая информация фрейма</param>
+        /// <returns>массив байт</returns>
         private byte[] GetCommentFrame(byte[] frameID, byte[] frameData)
         {
             return frameID
@@ -184,7 +184,7 @@ namespace ID3Tags
                             .ToArray();
         }
         /// <summary>
-        /// создает массив байт всего тега(заголовок + тело)
+        /// создает массив байт тега ID3(заголовок + тело)
         /// для дальнейшего сохранения
         /// </summary>
         /// <param name="tagBody">тело тега без заголовка</param>
@@ -192,7 +192,7 @@ namespace ID3Tags
         private byte[] GetTagID3ByteArray(byte[] tagBody)
         {
             return Encoding.Default.GetBytes("ID3")
-                                                    .Concat(Encoding.Default.GetBytes("0300"))
+                                                    .Concat(new byte[] { 3, 0 })
                                                     .Concat(new byte[] { 0 })
                                                     .Concat(GetTagSizeByteArray(tagBody.Length))
                                                     .Concat(tagBody)
@@ -264,13 +264,13 @@ namespace ID3Tags
 
         }
         /// <summary>
-        /// 
+        /// заполняет тег пользовательскими данными.
+        /// Если тег отсутствует - создает структуру
         /// </summary>
         /// <param name="mp3FilePath"></param>
         public void SetTag(string mp3FilePath)
         {
             int tagSize = 0;
-            byte[] tag;
             byte[] tagBody;
 
             if (!File.Exists(mp3FilePath))
@@ -278,14 +278,15 @@ namespace ID3Tags
 
             using(BinaryReader binReader = new BinaryReader(File.Open(mp3FilePath, FileMode.Open)))
             {
-
+                //проверяем наличие структуры
                 if ((new string(binReader.ReadChars(HEADERTAGLENGTH)) == "ID3") && (BitConverter.ToString(binReader.ReadBytes(2)) == "03-00"))
                 {
                     binReader.ReadByte();
-                    tagSize = this.GetTagSizeInt(binReader.ReadBytes(SIZETAGLENGTH));
-                    binReader.BaseStream.Position = tagSize;
+                    tagSize = this.GetTagSizeInt(binReader.ReadBytes(SIZETAGLENGTH));    
                 }
 
+                binReader.BaseStream.Position = tagSize;
+                //создаем тело тега из введенных пользовательских данных
                 tagBody = GetTextFrame(Encoding.Default.GetBytes("TIT2"), Encoding.Unicode.GetBytes(this.ID3Tag.Title))
                             .Concat(GetTextFrame(Encoding.Default.GetBytes("TPE1"), Encoding.Unicode.GetBytes(this.ID3Tag.Artist)))
                             .Concat(GetTextFrame(Encoding.Default.GetBytes("TALB"), Encoding.Unicode.GetBytes(this.ID3Tag.Album)))
@@ -294,24 +295,22 @@ namespace ID3Tags
                             .Concat(GetTextFrame(Encoding.Default.GetBytes("TCON"), Encoding.Unicode.GetBytes(this.ID3Tag.Genre)))
                             .Concat(GetTextFrame(Encoding.Default.GetBytes("TRCK"), Encoding.Unicode.GetBytes(this.ID3Tag.Track)))
                             .ToArray();
-
-                tag = GetTagID3ByteArray(tagBody);
-
+                //создаем временный файл
+                //записываем тег и аудиоданные
                 using (BinaryWriter binWriter = new BinaryWriter(File.Create(@"tmp.mp3")))
                 {
-                    binWriter.Write(tag);
-                    binWriter.Write()
+                    binWriter.Write(GetTagID3ByteArray(tagBody));
+                    while (binReader.BaseStream.Position < binReader.BaseStream.Length)
+                    {
+                        binWriter.Write(binReader.ReadByte());
+                    }
                 }
 
             }
-
-
-
-
+            //удаляем старый mp3-файл
+            File.Delete(mp3FilePath);
+            File.Move(@"tmp.mp3", mp3FilePath);
         }
-
-
-
     }
 }
 

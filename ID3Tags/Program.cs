@@ -39,23 +39,10 @@ namespace ID3Tags
                 //Console.WriteLine(mp3.ID3v1Tag.Album + "!");
                 //Console.WriteLine(mp3.ID3v1Tag.Comment + "!");
                 #endregion
-
-
-                //byte[] tag = new byte[1];
-                //using (FileStream fs = new FileStream(@"D:\Sia - I go to sleep.mp3", FileMode.Open, FileAccess.Read))
-                //{
-                //    fs.Seek(5, SeekOrigin.Begin);
-                //    fs.Read(tag, 0, 1);
-                //}
-
-                ////0-2 - строка "ID3"                            заголовок тега
-                ////3-4 - 03 00                                   версия/субверсия
-                ////
-                //Console.WriteLine(BitConverter.ToString(tag));//3-4
-
-                /*
+             
                 ID3v2 mp3 = new ID3v2();
                 mp3.GetTag(@"D:\Sia - I go to sleep.mp3");
+                //mp3.GetTag(@"D:\tmp.mp3");
                 //mp3.GetTag(@"D:\maroon5- animals.mp3");
                 //mp3.SetTag(@"D:\Sia - I go to sleep.mp3");
                 Console.WriteLine(mp3.ID3Tag.Title);
@@ -65,27 +52,34 @@ namespace ID3Tags
                 Console.WriteLine(mp3.ID3Tag.Comment);
                 Console.WriteLine(mp3.ID3Tag.Genre);
                 Console.WriteLine(mp3.ID3Tag.Track);
-                */
+
+                //mp3.ID3Tag.Album = "1";
+                //mp3.ID3Tag.Artist = "2";
+                //mp3.ID3Tag.Comment = "йцук";
+                //mp3.ID3Tag.Title = "3";
+                //mp3.ID3Tag.Year = "202020";
+                //mp3.ID3Tag.Genre = "1";
+                //mp3.SetTag(@"D:\Sia - I go to sleep.mp3");
+                
 
 
+                //int size = 530;
 
-                int size = 530;
+                //byte[] result = new byte[4];
+                //int countBits = 0;
+                /////int temp = 0;
 
-                byte[] result = new byte[4];
-                int countBits = 0;
-                ///int temp = 0;
-
-                for (int i = 3; i >= 0; i--)
-                {
-                    int temp = 0;
-                    for (int ii = 0; ii < 7; ii++)
-                    {
-                        if ((size & (1 << countBits)) != 0)
-                            temp |= (1 << ii);
-                        countBits++;
-                    }
-                    result[i] = (byte)temp;
-                }
+                //for (int i = 3; i >= 0; i--)
+                //{
+                //    int temp = 0;
+                //    for (int ii = 0; ii < 7; ii++)
+                //    {
+                //        if ((size & (1 << countBits)) != 0)
+                //            temp |= (1 << ii);
+                //        countBits++;
+                //    }
+                //    result[i] = (byte)temp;
+                //}
 
                 {
                 }
