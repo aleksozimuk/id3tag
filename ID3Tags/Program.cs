@@ -13,9 +13,9 @@ namespace ID3Tags
             try
             {
                 #region ID3v1
-                //ID3v1 mp3 = new ID3v1();
+                ID3v1 mp3 = new ID3v1();
 
-                //mp3.GetTag(@"D:\Sia - I go to sleep.mp3");
+                mp3.GetTag(@"D:\Sia - I go to sleep.mp3");
                 //Console.WriteLine(mp3.ID3v1Tag.Artist + "!");
                 //Console.WriteLine(mp3.ID3v1Tag.Title + "!");
                 //Console.WriteLine(mp3.ID3v1Tag.Album + "!");
@@ -40,18 +40,18 @@ namespace ID3Tags
                 //Console.WriteLine(mp3.ID3v1Tag.Comment + "!");
                 #endregion
              
-                ID3v2 mp3 = new ID3v2();
-                mp3.GetTag(@"D:\Sia - I go to sleep.mp3");
-                //mp3.GetTag(@"D:\tmp.mp3");
+                //ID3v2 mp3 = new ID3v2();
+                ////mp3.GetTag(@"D:\Sia - I go to sleep.mp3");
+                ////mp3.GetTag(@"D:\tmp.mp3");
                 //mp3.GetTag(@"D:\maroon5- animals.mp3");
-                //mp3.SetTag(@"D:\Sia - I go to sleep.mp3");
-                Console.WriteLine(mp3.ID3Tag.Title);
-                Console.WriteLine(mp3.ID3Tag.Artist);
-                Console.WriteLine(mp3.ID3Tag.Album);
-                Console.WriteLine(mp3.ID3Tag.Year);
-                Console.WriteLine(mp3.ID3Tag.Comment);
-                Console.WriteLine(mp3.ID3Tag.Genre);
-                Console.WriteLine(mp3.ID3Tag.Track);
+                ////mp3.SetTag(@"D:\Sia - I go to sleep.mp3");
+                //Console.WriteLine(mp3.ID3Tag.Title);
+                //Console.WriteLine(mp3.ID3Tag.Artist);
+                //Console.WriteLine(mp3.ID3Tag.Album);
+                //Console.WriteLine(mp3.ID3Tag.Year);
+                //Console.WriteLine(mp3.ID3Tag.Comment);
+                //Console.WriteLine(mp3.ID3Tag.Genre);
+                //Console.WriteLine(mp3.ID3Tag.Track);
 
                 //mp3.ID3Tag.Album = "1";
                 //mp3.ID3Tag.Artist = "2";
@@ -59,8 +59,8 @@ namespace ID3Tags
                 //mp3.ID3Tag.Title = "3";
                 //mp3.ID3Tag.Year = "202020";
                 //mp3.ID3Tag.Genre = "1";
-                //mp3.SetTag(@"D:\Sia - I go to sleep.mp3");
-                
+                ////mp3.SetTag(@"D:\Sia - I go to sleep.mp3");
+                //mp3.SetTag(@"D:\maroon5- animals.mp3");
 
 
                 //int size = 530;

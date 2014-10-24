@@ -32,11 +32,26 @@ namespace ID3Tags
 
         public void GetTag(string mp3FilePath)
         {
-            byte[] tag;
+            char[] tag;
 
             if(!File.Exists(mp3FilePath))
                 throw new Exception("файл не найден");
 
+
+            using (BinaryReader binReader = new BinaryReader(File.Open(mp3FilePath, FileMode.Open)))
+            {
+                binReader.BaseStream.Position = binReader.BaseStream.Length - 128;
+                tag = binReader.ReadChars(128);
+                if (new string(new char[]{tag[0], tag[1], tag[2]}) == "TAG")
+                {
+                    Console.WriteLine("ok");
+                }
+
+            }
+
+             
+
+            /*
             using(FileStream fs = new FileStream(mp3FilePath, FileMode.Open, FileAccess.Read))
             {
                 if (fs.Length > 128)
@@ -79,6 +94,7 @@ namespace ID3Tags
                     }
                 }
             }
+            */
         }
 
         public void SetTag(string mp3FilePath)
