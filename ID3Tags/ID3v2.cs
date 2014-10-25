@@ -254,10 +254,13 @@ namespace ID3Tags
                                 break;
                         }
                     }
+                    this._id3Tag.PositionAudioData = tagSize + 10;
+                    this._id3Tag.HasTag = true;
+
                 }
                 else
                 {
-                    //нет тега
+                    this._id3Tag.HasTag = false;
                 }
 
             }
@@ -310,6 +313,8 @@ namespace ID3Tags
             //удаляем старый mp3-файл
             File.Delete(mp3FilePath);
             File.Move(@"tmp.mp3", mp3FilePath);
+            this._id3Tag.PositionAudioData = tagSize + 10;
+            this._id3Tag.HasTag = true;
         }
     }
 }

@@ -8,7 +8,6 @@ namespace ID3Tags
 {
     class ID3Tag
     {
-        private string _header;
         private string _title;
         private string _artist;
         private string _album;
@@ -16,10 +15,11 @@ namespace ID3Tags
         private string _comment;
         private string _genre;
         private string _track;
+        private Boolean _hasTag;
+        private long _positionAudioData;
 
         public ID3Tag()
         {
-            _header = "";
             _title = "";
             _artist = "";
             _album = "";
@@ -27,13 +27,10 @@ namespace ID3Tags
             _comment = "";
             _genre = "";
             _track = "";
+            _hasTag = false;
+            _positionAudioData = 0;
         }
 
-        public string Header
-        {
-            get { return _header.TrimEnd('\0', ' ', '\a'); }
-            set { _header = value; }
-        }
         public string Title
         {
             get { return _title.TrimEnd('\0', ' ', '\a'); }
@@ -69,6 +66,16 @@ namespace ID3Tags
         {
             get { return _track.TrimEnd('\0', ' ', '\a'); }
             set { _track = value; }
+        }
+        public Boolean HasTag
+        {
+            get { return _hasTag; }
+            set { _hasTag = value; }
+        }
+        public long PositionAudioData
+        {
+            get { return _positionAudioData; }
+            set { _positionAudioData = value; }
         }
     }                                          
 }                            

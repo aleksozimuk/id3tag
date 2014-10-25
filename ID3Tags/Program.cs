@@ -15,23 +15,28 @@ namespace ID3Tags
                 #region ID3v1
                 ID3v1 mp3 = new ID3v1();
 
+                /*
                 mp3.GetTag(@"D:\Sia - I go to sleep.mp3");
-                //Console.WriteLine(mp3.ID3v1Tag.Artist + "!");
-                //Console.WriteLine(mp3.ID3v1Tag.Title + "!");
-                //Console.WriteLine(mp3.ID3v1Tag.Album + "!");
-                //Console.WriteLine(mp3.ID3v1Tag.Comment + "!");
-
+                Console.WriteLine(mp3.ID3v1Tag.Title + "!");
+                Console.WriteLine(mp3.ID3v1Tag.Artist + "!");
+                Console.WriteLine(mp3.ID3v1Tag.Album + "!");
+                Console.WriteLine(mp3.ID3v1Tag.Comment + "!");
+                Console.WriteLine(mp3.ID3v1Tag.Year + "!");
+                Console.WriteLine(mp3.ID3v1Tag.Genre + "!");
+                Console.WriteLine(mp3.ID3v1Tag.Track + "!");
+                */
                 //Console.Read();
 
-                //mp3.ID3v1Tag.Album = "AlbumTest";
-                //mp3.ID3v1Tag.Title = "TitleTest";
-                //mp3.ID3v1Tag.Artist = "ArtistTest";
-                //mp3.ID3v1Tag.Year = "0000";
-                //mp3.ID3v1Tag.Comment = "CommentTest";
-                //mp3.ID3v1Tag.Genre = "0";
-                //mp3.SetTag(@"D:\Sia - I go to sleep.mp3");
+                mp3.ID3v1Tag.Album = "AlbumTest";
+                mp3.ID3v1Tag.Title = "TitleTest";
+                mp3.ID3v1Tag.Artist = "ArtistTest";
+                mp3.ID3v1Tag.Year = "0000";
+                mp3.ID3v1Tag.Comment = "CommentTest";
+                mp3.ID3v1Tag.Track = "100";
+                mp3.ID3v1Tag.Genre = "90";
+                mp3.SetTag(@"D:\Sia - I go to sleep.mp3");
 
-                //Console.Read();
+                Console.Read();
 
                 //mp3.GetTag(@"D:\Sia - I go to sleep.mp3");
                 //Console.WriteLine(mp3.ID3v1Tag.Artist + "!");
