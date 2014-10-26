@@ -232,39 +232,38 @@ namespace ID3Tags
                         switch (frameName)
                         {
                             case "TIT2":
-                                this._id3Tag.Title = this.ParseTextFrames(frameData);
+                                this.ID3Tag.Title = this.ParseTextFrames(frameData);
                                 break;
                             case "TPE1":
-                                this._id3Tag.Artist = this.ParseTextFrames(frameData);
+                                this.ID3Tag.Artist = this.ParseTextFrames(frameData);
                                 break;
                             case "TALB":
-                                this._id3Tag.Album = this.ParseTextFrames(frameData);
+                                this.ID3Tag.Album = this.ParseTextFrames(frameData);
                                 break;
                             case "TYER":
-                                this._id3Tag.Year = this.ParseTextFrames(frameData);
+                                this.ID3Tag.Year = this.ParseTextFrames(frameData);
                                 break;
                             case "COMM":
-                                this._id3Tag.Comment = this.ParseCommentFrames(frameData);
+                                this.ID3Tag.Comment = this.ParseCommentFrames(frameData);
                                 break;
                             case "TCON":
-                                this._id3Tag.Genre = this.ParseTextFrames(frameData);
+                                this.ID3Tag.Genre = this.ParseTextFrames(frameData);
                                 break;
                             case "TRCK":
-                                this._id3Tag.Track = this.ParseTextFrames(frameData);
+                                this.ID3Tag.Track = this.ParseTextFrames(frameData);
                                 break;
                         }
                     }
-                    this._id3Tag.PositionAudioData = tagSize + 10;
-                    this._id3Tag.HasTag = true;
+                    this.ID3Tag.PositionAudioData = tagSize + 10;
+                    this.ID3Tag.HasTag = true;
 
                 }
                 else
                 {
-                    this._id3Tag.HasTag = false;
+                    this.ID3Tag.HasTag = false;
                 }
 
             }
-
         }
         /// <summary>
         /// заполняет тег пользовательскими данными.
@@ -288,7 +287,7 @@ namespace ID3Tags
                     tagSize = this.GetTagSizeInt(binReader.ReadBytes(SIZETAGLENGTH));    
                 }
 
-                binReader.BaseStream.Position = tagSize;
+                binReader.BaseStream.Position = tagSize + 10;
                 //создаем тело тега из введенных пользовательских данных
                 tagBody = GetTextFrame(Encoding.Default.GetBytes("TIT2"), Encoding.Unicode.GetBytes(this.ID3Tag.Title))
                             .Concat(GetTextFrame(Encoding.Default.GetBytes("TPE1"), Encoding.Unicode.GetBytes(this.ID3Tag.Artist)))
@@ -313,8 +312,8 @@ namespace ID3Tags
             //удаляем старый mp3-файл
             File.Delete(mp3FilePath);
             File.Move(@"tmp.mp3", mp3FilePath);
-            this._id3Tag.PositionAudioData = tagSize + 10;
-            this._id3Tag.HasTag = true;
+            this.ID3Tag.PositionAudioData = tagSize + 10;
+            this.ID3Tag.HasTag = true;
         }
     }
 }

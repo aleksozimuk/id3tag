@@ -34,6 +34,18 @@ namespace ID3Tags
             get { return _id3v1Tag; }
         }
         /// <summary>
+        /// переводит метаданные в массив байт
+        /// </summary>
+        /// <param name="metaData">метаданные-строка</param>
+        /// <param name="size">размер метаданных</param>
+        /// <returns>массив байт</returns>
+        private byte[] GetMetaDataByteArray(string metaData, byte size)
+        {
+            byte[] arr = new byte[size];
+            Encoding.Default.GetBytes(metaData).Where((element, index) => index < size).ToArray().CopyTo(arr, 0);
+            return arr;
+        }
+        /// <summary>
         /// получает имеющиеся метаданные аудиофайла
         /// </summary>
         /// <param name="mp3FilePath">полный путь к аудиофайлу</param>
@@ -49,147 +61,66 @@ namespace ID3Tags
                 if (new string(binReader.ReadChars(HEADERTAGLENGTH)) == "TAG")
                 {
                     //заполняем все метаданные
-                    this._id3v1Tag.Title = Encoding.Default.GetString(binReader.ReadBytes(TITLETAGLENGTH));
-                    this._id3v1Tag.Artist = Encoding.Default.GetString(binReader.ReadBytes(ARTISTTAGLENGTH));
-                    this._id3v1Tag.Album = Encoding.Default.GetString(binReader.ReadBytes(ALBUMTAGLENGTH));
-                    this._id3v1Tag.Year = Encoding.Default.GetString(binReader.ReadBytes(YEARTAGLENGTH));
-                    this._id3v1Tag.Comment = Encoding.Default.GetString(binReader.ReadBytes(COMMENTTAGLENGTH));
-                    if (binReader.ReadByte() == 0) this._id3v1Tag.Track = Encoding.Default.GetString(binReader.ReadBytes(TRACKTAGLENGTH));
-                    this._id3v1Tag.Genre = Encoding.Default.GetString(binReader.ReadBytes(GENRETAGLENGTH));
-                    this._id3v1Tag.HasTag = true;
+                    this.ID3v1Tag.Title = Encoding.Default.GetString(binReader.ReadBytes(TITLETAGLENGTH));
+                    this.ID3v1Tag.Artist = Encoding.Default.GetString(binReader.ReadBytes(ARTISTTAGLENGTH));
+                    this.ID3v1Tag.Album = Encoding.Default.GetString(binReader.ReadBytes(ALBUMTAGLENGTH));
+                    this.ID3v1Tag.Year = Encoding.Default.GetString(binReader.ReadBytes(YEARTAGLENGTH));
+                    this.ID3v1Tag.Comment = Encoding.Default.GetString(binReader.ReadBytes(COMMENTTAGLENGTH));
+                    if (binReader.ReadByte() == 0) this.ID3v1Tag.Track = Encoding.Default.GetString(binReader.ReadBytes(TRACKTAGLENGTH));
+                    this.ID3v1Tag.Genre = Encoding.Default.GetString(binReader.ReadBytes(GENRETAGLENGTH));
+                    this.ID3v1Tag.HasTag = true;
                 }
                 else
                 {
-                    this._id3v1Tag.HasTag = false;
+                    this.ID3v1Tag.HasTag = false;
                 }
             }
         }
-
+        /// <summary>
+        /// заполняет тег пользовательскими данными.
+        /// Если тег отсутствует - создает структуру
+        /// </summary>
+        /// <param name="mp3FilePath"></param>
         public void SetTag(string mp3FilePath)
         {
-            byte[] tag;
             long position = 0;
             
             if (!File.Exists(mp3FilePath))
                 throw new Exception("файл не найден");
-
+            //проверяем метку тега ID3v1 и сохраняем позицию для начала записи
             using (BinaryReader binReader = new BinaryReader(File.Open(mp3FilePath, FileMode.Open)))
             {
                 binReader.BaseStream.Position = binReader.BaseStream.Length - 128;
                 if (new string(binReader.ReadChars(3)) == "TAG") 
                 {
-                    position = binReader.BaseStream.Position;
+                    position = binReader.BaseStream.Position - 3; 
                 }
                 else
                 {
                     position = binReader.BaseStream.Length;
                 }
             }
-
+            //переводим все метаданные в массивы байт и пишем в файл
             using(BinaryWriter binWriter = new BinaryWriter(File.Open(mp3FilePath, FileMode.Open)))
             {
                 binWriter.BaseStream.Position = position;
-                byte[] arr = new byte[125];
 
-                //arr = arr.SelectMany(x => x = 0);обнулить массив?
-                //this?
-                //довести размеры каждого до нужного размера?
-                binWriter.Write(Encoding.Default.GetBytes(this._id3v1Tag.Title).Where((element, index) => index < TITLETAGLENGTH).ToArray());
-                binWriter.Write(Encoding.Default.GetBytes(this._id3v1Tag.Artist).Where((element, index) => index < ARTISTTAGLENGTH).ToArray());
-                binWriter.Write(Encoding.Default.GetBytes(this._id3v1Tag.Album).Where((element, index) => index < ALBUMTAGLENGTH).ToArray());
-                binWriter.Write(Encoding.Default.GetBytes(this._id3v1Tag.Year).Where((element, index) => index < YEARTAGLENGTH).ToArray());
-                binWriter.Write(Encoding.Default.GetBytes(this._id3v1Tag.Comment).Where((element, index) => index < COMMENTTAGLENGTH).ToArray());
-                binWriter.Write(0);
-                binWriter.Write(Encoding.Default.GetBytes(this._id3v1Tag.Track).Where((element, index) => index < TRACKTAGLENGTH).ToArray());
-                binWriter.Write(Encoding.Default.GetBytes(this._id3v1Tag.Genre).Where((element, index) => index < GENRETAGLENGTH).ToArray());
+                binWriter.Write(this.GetMetaDataByteArray("TAG", HEADERTAGLENGTH));
+                binWriter.Write(this.GetMetaDataByteArray(this.ID3v1Tag.Title, TITLETAGLENGTH));
+                binWriter.Write(this.GetMetaDataByteArray(this.ID3v1Tag.Artist, ARTISTTAGLENGTH));
+                binWriter.Write(this.GetMetaDataByteArray(this.ID3v1Tag.Album, ALBUMTAGLENGTH));
+                binWriter.Write(this.GetMetaDataByteArray(this.ID3v1Tag.Year, YEARTAGLENGTH));
+                binWriter.Write(this.GetMetaDataByteArray(this.ID3v1Tag.Comment, COMMENTTAGLENGTH));
+                binWriter.Write((byte)0);
+                //????????????????????????????????????????????????????????
+                binWriter.Write(byte.Parse(this.ID3v1Tag.Track));
+                binWriter.Write(byte.Parse(this.ID3v1Tag.Genre));
+                //binWriter.Write(this.GetMetaDataByteArray(this.ID3v1Tag.Track, TRACKTAGLENGTH));
+                //binWriter.Write(this.GetMetaDataByteArray(this.ID3v1Tag.Genre, GENRETAGLENGTH));
+                //???????????????????????????????????????????????????????
             }
 
-            this._id3v1Tag.HasTag = true;
-
-            /*
-            using (FileStream fs = new FileStream(mp3FilePath, FileMode.Open, FileAccess.ReadWrite))
-            {
-
-                fs.Seek(-128, SeekOrigin.End);
-                    
-                tag = new byte[HEADERTAGLENGTH];
-                fs.Read(tag, 0, HEADERTAGLENGTH);
-                if (Encoding.Default.GetString(tag) != "TAG")
-                {
-                    fs.Seek(0, SeekOrigin.End);
-                    Array.Copy(Encoding.Default.GetBytes("TAG"), tag, HEADERTAGLENGTH);
-                    fs.Write(tag, 0, HEADERTAGLENGTH);
-                }
-
-                tag = new byte[TITLETAGLENGTH];
-                Array.Copy(Encoding.Default.GetBytes(_id3v1Tag.Title), tag, Encoding.Default.GetBytes(_id3v1Tag.Title).Length);
-                fs.Write(tag, 0, TITLETAGLENGTH);
-
-                tag = new byte[ARTISTTAGLENGTH];
-                Array.Copy(Encoding.Default.GetBytes(_id3v1Tag.Artist), tag, Encoding.Default.GetBytes(_id3v1Tag.Artist).Length);
-                fs.Write(tag, 0, ARTISTTAGLENGTH);
-                
-                tag = new byte[ALBUMTAGLENGTH];
-                Array.Copy(Encoding.Default.GetBytes(_id3v1Tag.Album), tag, Encoding.Default.GetBytes(_id3v1Tag.Album).Length);
-                fs.Write(tag, 0, ALBUMTAGLENGTH);
-
-                tag = new byte[YEARTAGLENGTH];
-                Array.Copy(Encoding.Default.GetBytes(_id3v1Tag.Year), tag, Encoding.Default.GetBytes(_id3v1Tag.Year).Length);
-                fs.Write(tag, 0, YEARTAGLENGTH);
-
-                tag = new byte[COMMENTTAGLENGTH];
-                Array.Copy(Encoding.Default.GetBytes(_id3v1Tag.Comment), tag, Encoding.Default.GetBytes(_id3v1Tag.Comment).Length);
-                fs.Write(tag, 0, COMMENTTAGLENGTH);
-
-                tag = new byte[GENRETAGLENGTH];
-                Array.Copy(Encoding.Default.GetBytes(_id3v1Tag.Genre), tag, Encoding.Default.GetBytes(_id3v1Tag.Genre).Length);
-                fs.Write(tag, 0, GENRETAGLENGTH);
-             * */
+            this.ID3v1Tag.HasTag = true;
         }
     }
 }
-
-
-
-
-
-//---------------------------------------------------------------------------------
-/*
-            using(FileStream fs = new FileStream(mp3FilePath, FileMode.Open, FileAccess.Read))
-            {
-                if (fs.Length > 128)
-                {
-                    fs.Seek(-128, SeekOrigin.End);
-                    
-                    tag = new byte[HEADERTAGLENGTH];
-                    fs.Read(tag, 0, HEADERTAGLENGTH);
-                    _id3v1Tag.Header = Encoding.Default.GetString(tag);
-
-                    if (_id3v1Tag.Header == "TAG")
-                    {
-                        tag = new byte[TITLETAGLENGTH];
-                        fs.Read(tag, 0, TITLETAGLENGTH);
-                        _id3v1Tag.Title = Encoding.Default.GetString(tag);
-
-                        tag = new byte[ARTISTTAGLENGTH];
-                        fs.Read(tag, 0, ARTISTTAGLENGTH);
-                        _id3v1Tag.Artist = Encoding.Default.GetString(tag);
-
-                        tag = new byte[ALBUMTAGLENGTH];
-                        fs.Read(tag, 0, ALBUMTAGLENGTH);
-                        _id3v1Tag.Album = Encoding.Default.GetString(tag);
-
-                        tag = new byte[YEARTAGLENGTH];
-                        fs.Read(tag, 0, YEARTAGLENGTH);
-                        _id3v1Tag.Year = Encoding.Default.GetString(tag);
-
-                        tag = new byte[COMMENTTAGLENGTH];
-                        fs.Read(tag, 0, COMMENTTAGLENGTH);
-                        _id3v1Tag.Comment = Encoding.Default.GetString(tag);
-
-                        tag = new byte[GENRETAGLENGTH];
-                        fs.Read(tag, 0, GENRETAGLENGTH);
-                        _id3v1Tag.Genre = Encoding.Default.GetString(tag);
-                    }
-*/
-//------------------------------------------------------------------------------------------------
