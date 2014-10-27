@@ -13,24 +13,30 @@ namespace ID3Tags
             try
             {
                 #region ID3v1
-                ID3v1 mp3 = new ID3v1();
+                //ID3v1 mp3 = new ID3v1();
 
+                /*
                 mp3.GetTag(@"D:\Sia - I go to sleep.mp3");
-                //Console.WriteLine(mp3.ID3v1Tag.Artist + "!");
-                //Console.WriteLine(mp3.ID3v1Tag.Title + "!");
-                //Console.WriteLine(mp3.ID3v1Tag.Album + "!");
-                //Console.WriteLine(mp3.ID3v1Tag.Comment + "!");
-
-                //Console.Read();
-
-                //mp3.ID3v1Tag.Album = "AlbumTest";
-                //mp3.ID3v1Tag.Title = "TitleTest";
-                //mp3.ID3v1Tag.Artist = "ArtistTest";
-                //mp3.ID3v1Tag.Year = "0000";
-                //mp3.ID3v1Tag.Comment = "CommentTest";
-                //mp3.ID3v1Tag.Genre = "0";
-                //mp3.SetTag(@"D:\Sia - I go to sleep.mp3");
-
+                Console.WriteLine(mp3.ID3v1Tag.Title + "!");
+                Console.WriteLine(mp3.ID3v1Tag.Artist + "!");
+                Console.WriteLine(mp3.ID3v1Tag.Album + "!");
+                Console.WriteLine(mp3.ID3v1Tag.Comment + "!");
+                Console.WriteLine(mp3.ID3v1Tag.Year + "!");
+                Console.WriteLine(mp3.ID3v1Tag.Genre + "!");
+                Console.WriteLine(mp3.ID3v1Tag.Track + "!");
+                
+                Console.Read();
+                */
+                /*
+                mp3.ID3v1Tag.Album = "AlbumTest";
+                mp3.ID3v1Tag.Title = "TitleTest";
+                mp3.ID3v1Tag.Artist = "ArtistTest";
+                mp3.ID3v1Tag.Year = "0000";
+                mp3.ID3v1Tag.Comment = "CommentTest";
+                mp3.ID3v1Tag.Track = "200";
+                mp3.ID3v1Tag.Genre = "111";
+                mp3.SetTag(@"D:\Sia - I go to sleep.mp3");
+                */
                 //Console.Read();
 
                 //mp3.GetTag(@"D:\Sia - I go to sleep.mp3");
@@ -39,127 +45,30 @@ namespace ID3Tags
                 //Console.WriteLine(mp3.ID3v1Tag.Album + "!");
                 //Console.WriteLine(mp3.ID3v1Tag.Comment + "!");
                 #endregion
-             
-                //ID3v2 mp3 = new ID3v2();
-                ////mp3.GetTag(@"D:\Sia - I go to sleep.mp3");
+
+                ID3v2 mp3 = new ID3v2();
+                mp3.GetTag(@"D:\Sia - I go to sleep.mp3");
                 ////mp3.GetTag(@"D:\tmp.mp3");
-                //mp3.GetTag(@"D:\maroon5- animals.mp3");
+                ////mp3.GetTag(@"D:\maroon5- animals.mp3");
                 ////mp3.SetTag(@"D:\Sia - I go to sleep.mp3");
-                //Console.WriteLine(mp3.ID3Tag.Title);
-                //Console.WriteLine(mp3.ID3Tag.Artist);
-                //Console.WriteLine(mp3.ID3Tag.Album);
-                //Console.WriteLine(mp3.ID3Tag.Year);
-                //Console.WriteLine(mp3.ID3Tag.Comment);
-                //Console.WriteLine(mp3.ID3Tag.Genre);
-                //Console.WriteLine(mp3.ID3Tag.Track);
-
-                //mp3.ID3Tag.Album = "1";
-                //mp3.ID3Tag.Artist = "2";
-                //mp3.ID3Tag.Comment = "йцук";
-                //mp3.ID3Tag.Title = "3";
-                //mp3.ID3Tag.Year = "202020";
-                //mp3.ID3Tag.Genre = "1";
-                ////mp3.SetTag(@"D:\Sia - I go to sleep.mp3");
+                Console.WriteLine(mp3.ID3Tag.Title);
+                Console.WriteLine(mp3.ID3Tag.Artist);
+                Console.WriteLine(mp3.ID3Tag.Album);
+                Console.WriteLine(mp3.ID3Tag.Year);
+                Console.WriteLine(mp3.ID3Tag.Comment);
+                Console.WriteLine(mp3.ID3Tag.Genre);
+                Console.WriteLine(mp3.ID3Tag.Track);
+                /*
+                mp3.ID3Tag.Album = "пупсик";
+                mp3.ID3Tag.Artist = "2";
+                mp3.ID3Tag.Comment = "йцук";
+                mp3.ID3Tag.Title = "3";
+                mp3.ID3Tag.Year = "202020";
+                mp3.ID3Tag.Genre = "1";
+                mp3.ID3Tag.Track = "100";
+                mp3.SetTag(@"D:\Sia - I go to sleep.mp3");
                 //mp3.SetTag(@"D:\maroon5- animals.mp3");
-
-
-                //int size = 530;
-
-                //byte[] result = new byte[4];
-                //int countBits = 0;
-                /////int temp = 0;
-
-                //for (int i = 3; i >= 0; i--)
-                //{
-                //    int temp = 0;
-                //    for (int ii = 0; ii < 7; ii++)
-                //    {
-                //        if ((size & (1 << countBits)) != 0)
-                //            temp |= (1 << ii);
-                //        countBits++;
-                //    }
-                //    result[i] = (byte)temp;
-                //}
-
-                {
-                }
-                //byte[] arr = new byte[] { 1, 2, 3 };
-                //arr = arr.Reverse().ToArray();
-
-
-                //int res = 0;
-                //byte[] arr = { 7, 7, 7, 7 };
-                //int count = 0;
-
-                //for (int i = 3; i >= 0; i--)
-                //{
-                //    for (int ii = 0; ii < 7; ii++)
-                //    {
-                //        if ((arr[i] & (1 << ii)) != 0)
-                //            res |= (1 << count);
-                //        count++;
-                //    }
-                //}
-
-                //Console.WriteLine(res);
-
-                //обозреватель решений - панель управления
-                //свойства
-
-
-
-
-
-
-                //byte[] ar = new byte[] { 255, 254, 3, 4};
-
-                //byte[] ar2;// = ar.Where((elem, ind) => ind > 1).ToArray();
-
-                //ar2 = ar.Where((elem, ind) => !(((elem == 255) && (ind == 0)) || ((elem == 254) && (ind == 1)))).ToArray();
-
-
-                //Console.WriteLine();
-
-                /*
-                string str = "саша";
-                string str2 = "маша";
-
-                byte[] arr = Encoding.Unicode.GetBytes(str);
-                byte[] arr2 = Encoding.Unicode.GetBytes(str2);
-                byte[] res = arr.Concat(arr2).Concat(arr).ToArray();
-
-                //res = res.Concat(new byte[] { 1, 2, 15 }).ToArray();
-                res.Concat(arr).
-                    ToArray().
-                    Concat(arr).
-                    Concat(arr).
-                    ToArray();
-
-                Console.WriteLine(Encoding.Unicode.GetString(res));
-                */
-                /*
-                string str = @"D:\1.txt";
-
-                using (FileStream fs = new FileStream(str, FileMode.Open, FileAccess.Read))
-                {
-                    using (FileStream fs2 = new FileStream(@"D:\2.txt", FileMode.Create, FileAccess.Write))
-                    {
-                        while (fs.Position != fs.Length)
-                        {
-                            fs2.WriteByte((byte)fs.ReadByte());
-                            
-
-                        }
-
-                        
-                    }
-                }
-
-                File.Delete(str);
-                File.Move(@"D:\2.txt", str);
-                */
-
-
+                 */
 
             }
             catch (Exception e)
@@ -168,5 +77,6 @@ namespace ID3Tags
             }
             Console.ReadLine();
         }
+    
     }
 }
