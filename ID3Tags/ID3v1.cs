@@ -66,8 +66,8 @@ namespace ID3Tags
                     this.ID3v1Tag.Album = Encoding.Default.GetString(binReader.ReadBytes(ALBUMTAGLENGTH));
                     this.ID3v1Tag.Year = Encoding.Default.GetString(binReader.ReadBytes(YEARTAGLENGTH));
                     this.ID3v1Tag.Comment = Encoding.Default.GetString(binReader.ReadBytes(COMMENTTAGLENGTH));
-                    if (binReader.ReadByte() == 0) this.ID3v1Tag.Track = Encoding.Default.GetString(binReader.ReadBytes(TRACKTAGLENGTH));
-                    this.ID3v1Tag.Genre = Encoding.Default.GetString(binReader.ReadBytes(GENRETAGLENGTH));
+                    if (binReader.ReadByte() == 0) this.ID3v1Tag.Track = Convert.ToString(binReader.ReadByte());
+                    this.ID3v1Tag.Genre = Convert.ToString(binReader.ReadByte());
                     this.ID3v1Tag.HasTag = true;
                 }
                 else

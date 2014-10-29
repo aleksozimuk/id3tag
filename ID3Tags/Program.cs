@@ -12,10 +12,15 @@ namespace ID3Tags
         {
             try
             {
-                #region ID3v1
-                //ID3v1 mp3 = new ID3v1();
+                //Console.WriteLine(Convert.ToString(1));
 
-                /*
+
+
+
+                #region ID3v1
+                ID3v1 mp3 = new ID3v1();
+
+                
                 mp3.GetTag(@"D:\Sia - I go to sleep.mp3");
                 Console.WriteLine(mp3.ID3v1Tag.Title + "!");
                 Console.WriteLine(mp3.ID3v1Tag.Artist + "!");
@@ -25,8 +30,9 @@ namespace ID3Tags
                 Console.WriteLine(mp3.ID3v1Tag.Genre + "!");
                 Console.WriteLine(mp3.ID3v1Tag.Track + "!");
                 
-                Console.Read();
-                */
+                //Console.Read();
+                Console.WriteLine("---------------------------");
+                
                 /*
                 mp3.ID3v1Tag.Album = "AlbumTest";
                 mp3.ID3v1Tag.Title = "TitleTest";
@@ -46,18 +52,18 @@ namespace ID3Tags
                 //Console.WriteLine(mp3.ID3v1Tag.Comment + "!");
                 #endregion
 
-                ID3v2 mp3 = new ID3v2();
-                mp3.GetTag(@"D:\Sia - I go to sleep.mp3");
+                ID3v2 mp32 = new ID3v2();
+                mp32.GetTag(@"D:\Sia - I go to sleep.mp3");
                 ////mp3.GetTag(@"D:\tmp.mp3");
                 ////mp3.GetTag(@"D:\maroon5- animals.mp3");
                 ////mp3.SetTag(@"D:\Sia - I go to sleep.mp3");
-                Console.WriteLine(mp3.ID3Tag.Title);
-                Console.WriteLine(mp3.ID3Tag.Artist);
-                Console.WriteLine(mp3.ID3Tag.Album);
-                Console.WriteLine(mp3.ID3Tag.Year);
-                Console.WriteLine(mp3.ID3Tag.Comment);
-                Console.WriteLine(mp3.ID3Tag.Genre);
-                Console.WriteLine(mp3.ID3Tag.Track);
+                Console.WriteLine(mp32.ID3Tag.Title);
+                Console.WriteLine(mp32.ID3Tag.Artist);
+                Console.WriteLine(mp32.ID3Tag.Album);
+                Console.WriteLine(mp32.ID3Tag.Year);
+                Console.WriteLine(mp32.ID3Tag.Comment);
+                Console.WriteLine(mp32.ID3Tag.Genre);
+                Console.WriteLine(mp32.ID3Tag.Track);
                 /*
                 mp3.ID3Tag.Album = "пупсик";
                 mp3.ID3Tag.Artist = "2";
