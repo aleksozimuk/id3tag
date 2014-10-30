@@ -12,16 +12,11 @@ namespace ID3Tags
         {
             try
             {
-                //Console.WriteLine(Convert.ToString(1));
-
-
-
-
                 #region ID3v1
                 ID3v1 mp3 = new ID3v1();
 
                 
-                mp3.GetTag(@"D:\Sia - I go to sleep.mp3");
+                mp3.GetTagString(@"D:\Sia - I go to sleep.mp3");
                 Console.WriteLine(mp3.ID3v1Tag.Title + "!");
                 Console.WriteLine(mp3.ID3v1Tag.Artist + "!");
                 Console.WriteLine(mp3.ID3v1Tag.Album + "!");

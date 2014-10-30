@@ -46,10 +46,10 @@ namespace ID3Tags
             return arr;
         }
         /// <summary>
-        /// получает имеющиеся метаданные аудиофайла
+        /// получает имеющиеся метаданные аудиофайла в виде строки
         /// </summary>
         /// <param name="mp3FilePath">полный путь к аудиофайлу</param>
-        public void GetTag(string mp3FilePath)
+        public void GetTagString(string mp3FilePath)
         {     
             if(!File.Exists(mp3FilePath))
                 throw new Exception("файл не найден");
@@ -77,11 +77,38 @@ namespace ID3Tags
             }
         }
         /// <summary>
-        /// заполняет тег пользовательскими данными.
+        /// получает имеющиеся метаданные аудиофайла 
+        /// в виде массива байт 
+        /// </summary>
+        /// <param name="mp3FilePath">полный путь к аудиофайлу</param>
+        /// <returns>атрибуты в виде массива байт</returns>
+        public byte[] GetTagByteArray(string mp3FilePath)
+        {
+            if (!File.Exists(mp3FilePath))
+                throw new Exception("файл не найден");
+
+            using (BinaryReader binReader = new BinaryReader(File.Open(mp3FilePath, FileMode.Open)))
+            {
+                binReader.BaseStream.Position = binReader.BaseStream.Length - 128;
+                //проверяем метку тега ID3v1
+                if (new string(binReader.ReadChars(HEADERTAGLENGTH)) == "TAG")
+                {
+                    this.ID3v1Tag.HasTag = true;
+                    return binReader.ReadBytes(125);
+                }
+                else
+                {
+                    this.ID3v1Tag.HasTag = false;
+                    return new byte[] { 0 };
+                }
+            }
+        }
+        /// <summary>
+        /// заполняет тег пользовательскими данными(строки)
         /// Если тег отсутствует - создает структуру
         /// </summary>
-        /// <param name="mp3FilePath"></param>
-        public void SetTag(string mp3FilePath)
+        /// <param name="mp3FilePath">полный путь к аудиофайлу</param>
+        public void SetTagString(string mp3FilePath)
         {
             long position = 0;
             
@@ -118,6 +145,46 @@ namespace ID3Tags
                 //binWriter.Write(this.GetMetaDataByteArray(this.ID3v1Tag.Track, TRACKTAGLENGTH));
                 //binWriter.Write(this.GetMetaDataByteArray(this.ID3v1Tag.Genre, GENRETAGLENGTH));
                 //???????????????????????????????????????????????????????
+            }
+
+            this.ID3v1Tag.HasTag = true;
+        }
+        /// <summary>
+        /// заполняет тег пользовательскими данными(массив байт)
+        /// Если тег отсутствует - создает структуру
+        /// </summary>
+        /// <param name="mp3FilePath">полный путь к файлу</param>
+        /// <param name="tagByteArray">атрибуты в виде массива байт</param>
+        public void SetTagByteArray(string mp3FilePath, byte[] tagByteArray)
+        {
+            long position = 0;
+
+            if (!File.Exists(mp3FilePath))
+                throw new Exception("файл не найден");
+            if (tagByteArray.Length > 125)
+                throw new Exception("размер атрибутов превышает 125 байт");
+            //проверяем метку тега ID3v1 и сохраняем позицию для начала записи
+            using (BinaryReader binReader = new BinaryReader(File.Open(mp3FilePath, FileMode.Open)))
+            {
+                binReader.BaseStream.Position = binReader.BaseStream.Length - 128;
+                if (new string(binReader.ReadChars(3)) == "TAG")
+                {
+                    position = binReader.BaseStream.Position - 3;
+                }
+                else
+                {
+                    position = binReader.BaseStream.Length;
+                }
+            }
+            //пишем в файл
+            using (BinaryWriter binWriter = new BinaryWriter(File.Open(mp3FilePath, FileMode.Open)))
+            {
+                byte[] fullTagByteArray = new byte[125];
+                tagByteArray.CopyTo(fullTagByteArray, 0);
+                binWriter.BaseStream.Position = position;
+
+                binWriter.Write(this.GetMetaDataByteArray("TAG", HEADERTAGLENGTH));
+                binWriter.Write(fullTagByteArray);
             }
 
             this.ID3v1Tag.HasTag = true;
