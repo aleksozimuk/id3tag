@@ -17,6 +17,8 @@ namespace ID3Tags
         private const byte SIZEFRAMELENGTH = 4;
         private const byte FLAGFRAMELENGTH = 2;
 
+        private const int FRAMEMAXSIZE = 15728640;
+
         private ID3Tag _id3Tag;
         /// <summary>
         /// конструктор
@@ -160,7 +162,7 @@ namespace ID3Tags
             return frameID
                             .Concat(GetFrameSizeByteArray(frameData.Length + 1))
                             .Concat(new byte[] { 0, 0 })
-                            .Concat(new byte[] { 1 })
+                            .Concat(new byte[] { 0 })    //1
                             .Concat(frameData)
                             .ToArray();
         }
@@ -173,13 +175,13 @@ namespace ID3Tags
         private byte[] GetCommentFrame(byte[] frameID, byte[] frameData)
         {
             return frameID
-                            .Concat(GetFrameSizeByteArray(frameData.Length + 10))
+                            .Concat(GetFrameSizeByteArray(frameData.Length + 5))
                             .Concat(new byte[] { 0, 0 })
-                            .Concat(new byte[] { 1 })
+                            .Concat(new byte[] { 0 })  //1
                             .Concat(Encoding.Default.GetBytes("eng"))
-                            .Concat(new byte[] { 255, 254 })
-                            .Concat(new byte[] { 0, 0 })
-                            .Concat(new byte[] { 255, 254 })
+                            //.Concat(new byte[] { 255, 254 })
+                            .Concat(new byte[] { 0 })//еще 0 добавить
+                            //.Concat(new byte[] { 255, 254 })
                             .Concat(frameData)
                             .ToArray();
         }
@@ -202,7 +204,7 @@ namespace ID3Tags
         /// получает имеющиеся метаданные аудиофайла
         /// </summary>
         /// <param name="mp3FilePath">полный путь к аудиофайлу</param>
-        public void GetTag(string mp3FilePath)
+        public void GetTagString(string mp3FilePath)
         {
             int tagSize = 0;
             int frameSize = 0;
@@ -266,11 +268,35 @@ namespace ID3Tags
             }
         }
         /// <summary>
+        /// получает имеющиеся метаданные аудиофайла
+        /// </summary>
+        /// <param name="mp3FilePath">полный путь к аудиофайлу</param>
+        /// <returns>атрибуты в виде массива байт</returns>
+        public byte[] GetTagByteArray(string mp3FilePath)
+        {
+            this.GetTagString(mp3FilePath);
+            if (this.ID3Tag.HasTag)
+            {
+                return Encoding.Default.GetBytes(this.ID3Tag.Title)
+                .Concat(Encoding.Default.GetBytes(this.ID3Tag.Artist))
+                .Concat(Encoding.Default.GetBytes(this.ID3Tag.Album))
+                .Concat(Encoding.Default.GetBytes(this.ID3Tag.Year))
+                .Concat(Encoding.Default.GetBytes(this.ID3Tag.Comment))
+                .Concat(Encoding.Default.GetBytes(this.ID3Tag.Genre))
+                .Concat(Encoding.Default.GetBytes(this.ID3Tag.Track))
+                .ToArray();
+            }
+            else
+            {
+                return null;
+            }
+        }
+        /// <summary>
         /// заполняет тег пользовательскими данными.
         /// Если тег отсутствует - создает структуру
         /// </summary>
         /// <param name="mp3FilePath"></param>
-        public void SetTag(string mp3FilePath)
+        public void SetTagString(string mp3FilePath)
         {
             int tagSize = 0;
             byte[] tagBody;
@@ -289,13 +315,13 @@ namespace ID3Tags
 
                 binReader.BaseStream.Position = tagSize + 10;
                 //создаем тело тега из введенных пользовательских данных
-                tagBody = GetTextFrame(Encoding.Default.GetBytes("TIT2"), Encoding.Unicode.GetBytes(this.ID3Tag.Title))
-                            .Concat(GetTextFrame(Encoding.Default.GetBytes("TPE1"), Encoding.Unicode.GetBytes(this.ID3Tag.Artist)))
-                            .Concat(GetTextFrame(Encoding.Default.GetBytes("TALB"), Encoding.Unicode.GetBytes(this.ID3Tag.Album)))
-                            .Concat(GetTextFrame(Encoding.Default.GetBytes("TYER"), Encoding.Unicode.GetBytes(this.ID3Tag.Year)))
-                            .Concat(GetCommentFrame(Encoding.Default.GetBytes("COMM"), Encoding.Unicode.GetBytes(this.ID3Tag.Comment)))
-                            .Concat(GetTextFrame(Encoding.Default.GetBytes("TCON"), Encoding.Unicode.GetBytes(this.ID3Tag.Genre)))
-                            .Concat(GetTextFrame(Encoding.Default.GetBytes("TRCK"), Encoding.Unicode.GetBytes(this.ID3Tag.Track)))
+                tagBody = GetTextFrame(Encoding.Default.GetBytes("TIT2"), Encoding.Default.GetBytes(this.ID3Tag.Title))
+                            .Concat(GetTextFrame(Encoding.Default.GetBytes("TPE1"), Encoding.Default.GetBytes(this.ID3Tag.Artist)))
+                            .Concat(GetTextFrame(Encoding.Default.GetBytes("TALB"), Encoding.Default.GetBytes(this.ID3Tag.Album)))
+                            .Concat(GetTextFrame(Encoding.Default.GetBytes("TYER"), Encoding.Default.GetBytes(this.ID3Tag.Year)))
+                            .Concat(GetCommentFrame(Encoding.Default.GetBytes("COMM"), Encoding.Default.GetBytes(this.ID3Tag.Comment)))
+                            .Concat(GetTextFrame(Encoding.Default.GetBytes("TCON"), Encoding.Default.GetBytes(this.ID3Tag.Genre)))
+                            .Concat(GetTextFrame(Encoding.Default.GetBytes("TRCK"), Encoding.Default.GetBytes(this.ID3Tag.Track)))
                             .ToArray();
                 //создаем временный файл
                 //записываем тег и аудиоданные
@@ -315,79 +341,25 @@ namespace ID3Tags
             this.ID3Tag.PositionAudioData = tagSize + 10;
             this.ID3Tag.HasTag = true;
         }
+        /// <summary>
+        /// заполняет тег данными в виде массива байт
+        /// </summary>
+        /// <param name="mp3FilePath">путь к аудиофайлу</param>
+        /// <param name="tagByteArray">данные</param>
+        public void SetTagByteArray(string mp3FilePath, byte[] tagByteArray)
+        {
+            if (tagByteArray.Length > FRAMEMAXSIZE * 7)
+                throw new Exception("размер файла превысил 105 МБ");
+
+            this.ID3Tag.Title = Encoding.Default.GetString(tagByteArray.Where((element, index) => index < FRAMEMAXSIZE).ToArray());
+            this.ID3Tag.Artist = Encoding.Default.GetString(tagByteArray.Where((element, index) => (index >= FRAMEMAXSIZE) && (index < FRAMEMAXSIZE * 2)).ToArray());
+            this.ID3Tag.Album = Encoding.Default.GetString(tagByteArray.Where((element, index) => (index >= FRAMEMAXSIZE * 2) && (index < FRAMEMAXSIZE * 3)).ToArray());
+            this.ID3Tag.Year = Encoding.Default.GetString(tagByteArray.Where((element, index) => (index >= FRAMEMAXSIZE * 3) && (index < FRAMEMAXSIZE * 4)).ToArray());
+            this.ID3Tag.Comment = Encoding.Default.GetString(tagByteArray.Where((element, index) => (index >= FRAMEMAXSIZE * 4) && (index < FRAMEMAXSIZE * 5)).ToArray());
+            this.ID3Tag.Genre = Encoding.Default.GetString(tagByteArray.Where((element, index) => (index >= FRAMEMAXSIZE * 5) && (index < FRAMEMAXSIZE * 6)).ToArray());
+            this.ID3Tag.Track = Encoding.Default.GetString(tagByteArray.Where((element, index) => (index >= FRAMEMAXSIZE * 6) && (index < FRAMEMAXSIZE * 7)).ToArray());
+
+            SetTagString(mp3FilePath);
+        }
     }
 }
-
-
-
-
-
-//// id фрейма
-//string frameID = new string(binReader.ReadChars(4));
-//// размер фрейма
-//string sizeFrame = (BitConverter.ToString(binReader.ReadBytes(4)));
-//// флаги фрейма
-//binReader.ReadBytes(2);
-//// кодировка - 1 байт
-//string encoding = BitConverter.ToString(new byte[1] { binReader.ReadByte() });
-//// язык - 3 байта
-//string language = new string(binReader.ReadChars(3));
-//// UNICODE NULL(FF FE 00 00)
-//string unicodeNull = (BitConverter.ToString(binReader.ReadBytes(4)));
-////UNICODE BOM(FF FE)
-//string unicodeBom = (BitConverter.ToString(binReader.ReadBytes(2)));
-//// текст фрейма
-//string str = Encoding.Unicode.GetString(binReader.ReadBytes(16));
-//Console.WriteLine(str);
-////UNICODE BOM(FF FE)
-////string unicodeBom2 = (BitConverter.ToString(binReader.ReadBytes()));
-//Console.WriteLine();
-//// фрейм следующий
-//string str2 = new string(binReader.ReadChars(4));//Encoding.Default.GetString(binReader.ReadBytes(4));
-//string sizeFrame2 = (BitConverter.ToString(binReader.ReadBytes(4)));
-//binReader.ReadBytes(2);
-//string enc = BitConverter.ToString(new byte[1] { binReader.ReadByte() });
-
-//string str3 = new string(binReader.ReadChars(4));
-
-//------------------------------------------------------------------test --------------------------------------------
-
-
-//int sTag = tagSize;
-
-//int sFrame = 0;
-//while (binReader.BaseStream.Position <= sTag)
-//{
-
-
-
-//    Console.Write(new string(binReader.ReadChars(4)) + " - ");
-//    sFrame = GetSizeTag(binReader.ReadBytes(4));
-//    Console.Write(sFrame + " - ");
-//    binReader.ReadBytes(2);
-//    Console.WriteLine(new string(binReader.ReadChars(sFrame)));
-
-//    //count += 4 + 4 + 2 + sFrame;
-//}
-
-
-////byte[] arr =  binReader.ReadBytes(650);
-
-
-
-
-//-------------------------------------------------------------
-
-
-
-
-
-
-
-//Console.WriteLine(this._id3Tag.Title);
-//                    Console.WriteLine(this._id3Tag.Artist);
-//                    Console.WriteLine(this._id3Tag.Album);
-//                    Console.WriteLine(this._id3Tag.Year);
-//                    Console.WriteLine(this._id3Tag.Comment);
-//                    Console.WriteLine(this._id3Tag.Genre);
-//                    Console.WriteLine(tagSize);

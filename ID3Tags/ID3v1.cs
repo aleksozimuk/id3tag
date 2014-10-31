@@ -99,7 +99,7 @@ namespace ID3Tags
                 else
                 {
                     this.ID3v1Tag.HasTag = false;
-                    return new byte[] { 0 };
+                    return null;
                 }
             }
         }
